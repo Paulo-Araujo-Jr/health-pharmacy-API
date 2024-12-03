@@ -3,6 +3,7 @@ package com.healthPharmacy.demo.model;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "cart")
 public class ShoppingCartModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

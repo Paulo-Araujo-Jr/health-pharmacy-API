@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Entity
 @Data
+@Table(name = "medications")
 public class MedicationModel extends ProductModel {
 
     @Id

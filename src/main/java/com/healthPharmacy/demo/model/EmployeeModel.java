@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Data
+@Table(name = "employees")
 public class EmployeeModel extends PersonModel{
 
     @Id

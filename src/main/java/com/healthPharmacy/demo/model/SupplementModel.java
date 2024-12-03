@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Entity
 @Data
+@Table(name = "supplements")
 public class SupplementModel extends ProductModel {
 
     @Id
