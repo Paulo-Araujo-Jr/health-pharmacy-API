@@ -1,7 +1,8 @@
-package com.healthPharmacy.demo.service;
+package com.healthPharmacy.demo.services;
 
 import com.healthPharmacy.demo.dto.CustomerDTO;
-import com.healthPharmacy.demo.model.CustomerModel;
+import com.healthPharmacy.demo.models.CustomerModel;
+import com.healthPharmacy.demo.models.enums.Role;
 import com.healthPharmacy.demo.repository.CustomerRepository;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class CustomerService {
         customerModel.setPassword(customerDTO.password());
         customerModel.setAge(customerDTO.age());
         customerModel.setAddress(customerDTO.address());
+        customerModel.setRole(Role.CUSTOMER);
         customerRepository.save(customerModel);
     }
 }

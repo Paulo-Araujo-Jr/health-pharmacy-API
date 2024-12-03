@@ -1,5 +1,6 @@
-package com.healthPharmacy.demo.model;
+package com.healthPharmacy.demo.models;
 
+import com.healthPharmacy.demo.models.enums.Role;
 import lombok.Data;
 
 import jakarta.persistence.*;
@@ -21,5 +22,7 @@ public abstract class PersonModel {
     private String email;
     @Column(length = 100)
     private String password;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
 }

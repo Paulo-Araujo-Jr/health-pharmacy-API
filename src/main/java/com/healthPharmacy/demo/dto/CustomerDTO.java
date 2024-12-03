@@ -8,6 +8,4 @@ public record CustomerDTO (
     String password,
     Integer age,
     String address)
-    {
-
-    }
+{}

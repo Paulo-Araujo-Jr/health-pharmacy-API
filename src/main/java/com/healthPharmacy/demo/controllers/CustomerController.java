@@ -1,7 +1,7 @@
-package com.healthPharmacy.demo.controller;
+package com.healthPharmacy.demo.controllers;
 
 import com.healthPharmacy.demo.dto.CustomerDTO;
-import com.healthPharmacy.demo.service.CustomerService;
+import com.healthPharmacy.demo.services.CustomerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

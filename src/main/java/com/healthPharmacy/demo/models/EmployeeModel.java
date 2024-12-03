@@ -1,4 +1,4 @@
-package com.healthPharmacy.demo.model;
+package com.healthPharmacy.demo.models;
 
 import jakarta.persistence.Id;
 import lombok.Data;
@@ -15,5 +15,4 @@ public class EmployeeModel extends PersonModel{
     private Long id;
     @Column(length = 50)
     private String responsibility;
-
 }
