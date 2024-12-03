@@ -7,9 +7,10 @@ import lombok.Data;
 @Data
 public class HygieneProductModel extends ProductModel {
 
-    @Column(length = 50)
+    @Id
+    private Long id;
+    @Column(nullable = false)
     private String usage;
-
-    @Column(length = 50)
+    @Column(nullable = false)
     private String fragrance;
 }

@@ -1,8 +1,8 @@
 package com.healthPharmacy.demo.model;
 
-import jakarta.persistence.*;
 import lombok.Data;
 
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -10,9 +10,8 @@ import java.time.LocalDate;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Data
 public abstract class ProductModel {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(length = 100, nullable = false)
@@ -35,4 +34,5 @@ public abstract class ProductModel {
 
     @Column(nullable = false)
     private LocalDate expirationDate;
+
 }

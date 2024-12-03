@@ -7,12 +7,12 @@ import lombok.Data;
 @Data
 public class CosmeticModel extends ProductModel {
 
-    @Column(length = 50)
+    @Id
+    private Long id;
+    @Column(nullable = false)
     private String skinType;
-
-    @Column(length = 50)
+    @Column(nullable = false)
     private String color;
-
-    @Column(length = 100)
+    @Column (nullable = false)
     private String fragrance;
 }

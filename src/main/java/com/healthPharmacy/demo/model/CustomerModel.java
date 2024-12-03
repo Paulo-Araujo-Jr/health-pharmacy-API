@@ -1,16 +1,17 @@
 package com.healthPharmacy.demo.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+
+import java.io.Serial;
+import java.io.Serializable;
 
 @Entity
-@Data
-public class CustomerModel extends PersonModel {
+public class CustomerModel extends PersonModel implements Serializable{
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(length = 3)
     private int age;
     @Column(length = 100)
     private String address;
+
 }

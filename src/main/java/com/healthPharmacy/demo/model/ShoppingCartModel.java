@@ -9,13 +9,14 @@ public class ShoppingCartModel {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "produto_id")
-    private ProductModel produto;
+    @JoinColumn(name = "product_id")
+    private ProductModel product;
 
     @ManyToOne
-    @JoinColumn(name = "pedido_id")
-    private OrderItemModel pedido;
+    @JoinColumn(name = "good_id")
+    private OrderItemModel request;
 
-    private int quantidade;
-    private double preco;
+    private int quantity;
+    private double price;
+
 }

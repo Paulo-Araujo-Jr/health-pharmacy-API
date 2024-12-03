@@ -7,10 +7,10 @@ import lombok.Data;
 @Data
 public class MedicationModel extends ProductModel {
 
-    // Specific attributes for medications
-    @Column(length = 50)
+    @Id
+    private Long id;
+    @Column(nullable = false)
     private String prescriptionRequired;
-
-    @Column(length = 50)
+    @Column(nullable = false)
     private String dosage;
 }

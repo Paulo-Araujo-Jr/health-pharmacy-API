@@ -14,16 +14,16 @@ public class OrderItemModel {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id")
+    @JoinColumn(name = "customer_cpf")
     private CustomerModel customer;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "order_id")
-    private List<ShoppingCartModel> items = new ArrayList<>();
+    @JoinColumn(name = "ShoppingCart_id")
+    private List<ShoppingCartModel> goods = new ArrayList<>();
 
-    @Column(nullable = false)
-    private LocalDateTime timestamp;
-
-    @Column(name = "total_cost")
+    private LocalDateTime orderDate;
+    @Column(name = "total_value")
     private double totalValue;
+
+
 }
