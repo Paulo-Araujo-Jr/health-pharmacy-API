@@ -1,9 +1,11 @@
-package com.healthPharmacy.demo.model;
+package com.healthPharmacy.demo.models;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
 @Table(name = "cart")
+@Data
 public class ShoppingCartModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -19,7 +19,7 @@ public class CustomerController {
     }
 
     @PostMapping("/registration")
-    public ResponseEntity<?> registerCustomer(@RequestBody CustomerDTO customerDTO) {
+    public ResponseEntity<Void> registerCustomer(@RequestBody CustomerDTO customerDTO) {
         customerService.registerCustomer(customerDTO);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

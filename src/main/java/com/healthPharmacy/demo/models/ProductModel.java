@@ -1,10 +1,9 @@
-package com.healthPharmacy.demo.model;
+package com.healthPharmacy.demo.models;
 
 import lombok.Data;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
@@ -32,7 +31,5 @@ public abstract class ProductModel {
     @Column(length = 50)
     private String brand;
 
-    @Column(nullable = false)
-    private LocalDate expirationDate;
 
 }

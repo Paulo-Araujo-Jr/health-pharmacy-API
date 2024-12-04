@@ -1,4 +1,4 @@
-package com.healthPharmacy.demo.model;
+package com.healthPharmacy.demo.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -11,7 +11,7 @@ public class MedicationModel extends ProductModel {
     @Id
     private Long id;
     @Column(nullable = false)
-    private String prescriptionRequired;
+    private Boolean prescriptionRequired;
     @Column(nullable = false)
     private String dosage;
 }

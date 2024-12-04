@@ -2,7 +2,6 @@ package com.healthPharmacy.demo.models;
 
 import com.healthPharmacy.demo.models.enums.Role;
 import lombok.Data;
-
 import jakarta.persistence.*;
 
 @Entity
