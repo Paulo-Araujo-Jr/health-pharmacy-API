@@ -11,11 +11,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("api/v1/employee")
 public class EmployeeController {
+
     private EmployeeService employeeService;
+
     public EmployeeController(EmployeeService employeeService) {
         this.employeeService = employeeService;
     }
-    @PostMapping
+
+    @PostMapping("/registration")
     public ResponseEntity<Void> registerEmployee(EmployeeDTO employeeDTO){
         employeeService.registerEmployee(employeeDTO);
         return new ResponseEntity<>(HttpStatus.CREATED);

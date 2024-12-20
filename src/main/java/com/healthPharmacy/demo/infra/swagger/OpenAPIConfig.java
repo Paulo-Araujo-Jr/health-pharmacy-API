@@ -1,4 +1,4 @@
-package com.healthPharmacy.demo.config;
+package com.healthPharmacy.demo.infra.swagger;
 
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;

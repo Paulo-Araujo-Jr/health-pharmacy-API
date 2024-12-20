@@ -32,6 +32,7 @@ public class ProductService {
     }
 
     public Page<ProductDTO> getAllProducts(int page, int size, ProductSort sort) {
+        if (sort == null ) sort = ProductSort.NAME_ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(getSortDirection(sort), "name"));
 
         Page<SupplementModel> supplements = supplementRepository.findAll(pageable);

@@ -1,12 +1,12 @@
 package com.healthPharmacy.demo.repository;
 
-import com.healthPharmacy.demo.models.EmployeeModel;
+import com.healthPharmacy.demo.models.PersonModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 
+
 @Repository
-public interface EmployeeRepository extends JpaRepository<EmployeeModel, Long> {
-    EmployeeModel findByEmail(String email);
-    EmployeeModel findByCpf(String cpf);
+public interface PersonRepository extends JpaRepository<PersonModel, Long> {
+    UserDetails findByEmail(String email);
 }
