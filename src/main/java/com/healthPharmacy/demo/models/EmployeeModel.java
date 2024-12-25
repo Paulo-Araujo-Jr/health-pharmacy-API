@@ -13,13 +13,17 @@ import java.util.List;
 @Entity
 @Table(name = "employees")
 @Data
-public class EmployeeModel extends PersonModel {
+public class EmployeeModel {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
     @Column(length = 50)
     private String responsibility;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "person_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private PersonModel person;
+    @OneToOne
+    @JoinColumn(name = "person_model_id", referencedColumnName = "id", nullable = false)
+    private PersonModel personModel;
 
 }

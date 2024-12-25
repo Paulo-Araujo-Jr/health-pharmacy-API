@@ -2,19 +2,15 @@ package com.healthPharmacy.demo.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.Collection;
-import java.util.List;
 
 @Entity
 @Table(name = "customers")
 @Data
-public class CustomerModel extends PersonModel {
+public class CustomerModel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(length = 3)
@@ -23,7 +19,7 @@ public class CustomerModel extends PersonModel {
     @Column(length = 100)
     private String address;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "person_model_id", referencedColumnName = "id", nullable = false)
     private PersonModel personModel;
 

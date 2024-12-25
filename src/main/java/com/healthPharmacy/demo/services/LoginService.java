@@ -1,25 +1,22 @@
 package com.healthPharmacy.demo.services;
 
-import com.healthPharmacy.demo.repository.CustomerRepository;
-import com.healthPharmacy.demo.repository.EmployeeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
-
+@Service
 public class LoginService implements UserDetailsService {
 
-    CustomerRepository customerRepository;
-    EmployeeRepository employeeRepository;
+    @Autowired
+    private PersonService personService;
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        UserDetails customer = customerRepository.findByEmail(email);
-        if (customer != null) {
-            return customer;
-        }
-        UserDetails employee = employeeRepository.findByEmail(email);
-        if (employee != null) {
-            return employee;
+        UserDetails user = personService.findPersonByEmail(email);
+        if (user != null) {
+            return user;
         }
         throw new UsernameNotFoundException("User not found");
     }

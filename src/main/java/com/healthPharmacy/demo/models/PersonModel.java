@@ -18,10 +18,10 @@ import java.util.List;
 public class PersonModel implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(length = 11)
+    @Column(length = 11, unique = true, nullable = false)
     private String cpf;
 
     @Column(length = 100)
@@ -30,7 +30,7 @@ public class PersonModel implements UserDetails {
     @Column(length = 11)
     private String phoneNumber;
 
-    @Column(length = 100)
+    @Column(length = 100, unique = true, nullable = false)
     private String email;
 
     @Column(length = 100)
@@ -38,6 +38,18 @@ public class PersonModel implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    public PersonModel(String cpf, String name, String phoneNumber, String email, String password, UserRole userRole) {
+        this.cpf = cpf;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.password = password;
+        this.role = userRole;
+    }
+
+    public PersonModel() {
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
