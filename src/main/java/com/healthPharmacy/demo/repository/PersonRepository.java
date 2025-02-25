@@ -9,5 +9,4 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PersonRepository extends JpaRepository<PersonModel, Long> {
     UserDetails findByEmail(String email);
-    UserDetails findByCpf(String cpf);
 }

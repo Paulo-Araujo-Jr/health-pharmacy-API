@@ -1,14 +1,10 @@
 package com.healthPharmacy.demo.models;
 
-import com.healthPharmacy.demo.enums.UserRole;
+
 import jakarta.persistence.Id;
 import lombok.Data;
 import jakarta.persistence.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.Collection;
-import java.util.List;
 
 @Entity
 @Table(name = "employees")
@@ -22,7 +18,7 @@ public class EmployeeModel {
     @Column(length = 50)
     private String responsibility;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "person_model_id", referencedColumnName = "id", nullable = false)
     private PersonModel personModel;
 

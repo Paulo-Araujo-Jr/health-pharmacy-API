@@ -6,30 +6,48 @@ import com.healthPharmacy.demo.enums.UserRole;
 import com.healthPharmacy.demo.models.PersonModel;
 import com.healthPharmacy.demo.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
-    private final PersonService personService;
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED)
     public void registerCustomer(CustomerDTO customerDTO) {
+        PersonModel personModel = new PersonModel(
+                customerDTO.cpf(),
+                customerDTO.name(),
+                customerDTO.phoneNumber(),
+                customerDTO.email(),
+                customerDTO.password(),
+                UserRole.CUSTOMER
+        );
+
         CustomerModel customerModel = new CustomerModel();
         customerModel.setAge(customerDTO.age());
         customerModel.setAddress(customerDTO.address());
-        PersonModel personModel = new PersonModel(customerDTO.cpf(), customerDTO.name(), customerDTO.phoneNumber(), customerDTO.email(), customerDTO.password(), UserRole.CUSTOMER);
         customerModel.setPersonModel(personModel);
 
-        personService.save(customerModel.getPersonModel());
-
         customerRepository.save(customerModel);
-        System.out.println("Customer registered successfully");
-
     }
+
+    @Transactional
+    public void deleteCustomer(Long id) {
+        CustomerModel customerModel = customerRepository.findByPersonModelId(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        if (!customerModel.getPersonModel().isActive()) throw new UsernameNotFoundException("User not found");
+
+        PersonModel personModel = customerModel.getPersonModel();
+        personModel.setActive(false);
+        customerRepository.save(customerModel);
+    }
+
 }

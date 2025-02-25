@@ -19,8 +19,8 @@ public class CustomerModel {
     @Column(length = 100)
     private String address;
 
-    @OneToOne
-    @JoinColumn(name = "person_model_id", referencedColumnName = "id", nullable = false)
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "person_model_id", referencedColumnName = "id")
     private PersonModel personModel;
 
 }

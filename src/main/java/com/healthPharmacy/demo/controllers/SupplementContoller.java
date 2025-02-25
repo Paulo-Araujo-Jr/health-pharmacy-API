@@ -5,6 +5,7 @@ import com.healthPharmacy.demo.services.SupplementService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,7 +18,7 @@ public class SupplementContoller {
     }
 
     @PostMapping
-    public ResponseEntity<Void> registerSupplement(SupplementDTO supplementDTO) {
+    public ResponseEntity<Void> registerSupplement(@RequestBody SupplementDTO supplementDTO) {
         supplementService.registerSupplement(supplementDTO);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

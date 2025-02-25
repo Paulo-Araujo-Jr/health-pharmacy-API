@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Collection;
 import java.util.List;
@@ -39,13 +40,16 @@ public class PersonModel implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    private boolean active;
+
     public PersonModel(String cpf, String name, String phoneNumber, String email, String password, UserRole userRole) {
         this.cpf = cpf;
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.email = email;
-        this.password = password;
+        this.password = new BCryptPasswordEncoder().encode(password);;
         this.role = userRole;
+        this.active = true;
     }
 
     public PersonModel() {

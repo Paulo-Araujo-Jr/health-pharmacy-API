@@ -4,11 +4,11 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.healthPharmacy.demo.dto.LoginDTO;
 import com.healthPharmacy.demo.dto.LoginResponseDTO;
 import com.healthPharmacy.demo.models.PersonModel;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Date;
 
 @Service
 public class TokenService {
@@ -34,6 +35,7 @@ public class TokenService {
             String token = JWT.create()
                     .withIssuer("api-v1-auth")
                     .withSubject(user.getEmail())
+                    .withArrayClaim("roles", new String[] {user.getRole().getRole()})
                     .withExpiresAt(genExpirationDate())
                     .sign(algorithm);
             return token;
@@ -45,12 +47,19 @@ public class TokenService {
     public String validateToken(String token){
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
-            return JWT.require(algorithm)
+
+            DecodedJWT decodedJWT = JWT.require(algorithm)
                     .withIssuer("api-v1-auth")
                     .build()
-                    .verify(token)
-                    .getSubject();
-        } catch (JWTVerificationException exception){
+                    .verify(token);
+
+            if (decodedJWT.getExpiresAt().before(new Date())) {
+                throw new RuntimeException("Token expired");
+            }
+
+            return decodedJWT.getSubject();
+
+        } catch (JWTVerificationException exception) {
             throw new RuntimeException("Invalid token", exception);
         }
     }
