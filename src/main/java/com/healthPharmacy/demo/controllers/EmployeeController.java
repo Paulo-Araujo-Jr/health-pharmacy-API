@@ -1,6 +1,7 @@
 package com.healthPharmacy.demo.controllers;
 
 import com.healthPharmacy.demo.dto.EmployeeDTO;
+import com.healthPharmacy.demo.dto.customer.CustomerResponseDTO;
 import com.healthPharmacy.demo.services.EmployeeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +23,15 @@ public class EmployeeController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/customers/{id}")
     public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
         employeeService.deleteEmployee(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/{cpf}")
+    public ResponseEntity<CustomerResponseDTO> findAllByCpf(@PathVariable String cpf){
+        CustomerResponseDTO customerResponseDTO = employeeService.getCustomerByCpf(cpf);
+        return new ResponseEntity<>(customerResponseDTO, HttpStatus.OK);
     }
 }

@@ -1,12 +1,11 @@
 package com.healthPharmacy.demo.controllers;
 
-import com.healthPharmacy.demo.dto.CustomerDTO;
+import com.healthPharmacy.demo.dto.customer.CustomerRequestDTO;
 import com.healthPharmacy.demo.services.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,8 +17,8 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @PostMapping("/registration")
-    public ResponseEntity<Void> registerCustomer(@RequestBody CustomerDTO customerDTO) {
-        customerService.registerCustomer(customerDTO);
+    public ResponseEntity<Void> registerCustomer(@RequestBody CustomerRequestDTO customerRequestDTO) {
+        customerService.registerCustomer(customerRequestDTO);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
     @DeleteMapping("/{id}")

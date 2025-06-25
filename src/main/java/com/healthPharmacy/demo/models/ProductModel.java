@@ -31,5 +31,4 @@ public abstract class ProductModel {
     @Column(length = 50)
     private String brand;
 
-
 }
