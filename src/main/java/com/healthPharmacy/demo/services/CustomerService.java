@@ -48,12 +48,12 @@ public class CustomerService {
         customerRepository.save(customerModel);
     }
 
-    public CustomerResponseDTO getCustomer(String cpf) {
+    public CustomerResponseDTO getCustomerByCpf(String cpf) {
         CustomerModel customerModel = customerRepository.findByPersonModelEmail(cpf).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return customerModelToResponseDTO(customerModel);
     }
 
-    private  CustomerResponseDTO customerModelToResponseDTO(CustomerModel customerModel){
+    private CustomerResponseDTO customerModelToResponseDTO(CustomerModel customerModel){
         CustomerResponseDTO customerResponseDTO = new CustomerResponseDTO(customerModel.getPersonModel().getCpf(), customerModel.getPersonModel().getName(), customerModel.getPersonModel().getEmail(), customerModel.getPersonModel().getPhoneNumber(), customerModel.getAge(), customerModel.getAddress(), customerModel.getPersonModel().isActive());
         return customerResponseDTO;
     }
