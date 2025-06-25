@@ -1,6 +1,7 @@
 package com.healthPharmacy.demo.services;
 
 import com.healthPharmacy.demo.dto.EmployeeDTO;
+import com.healthPharmacy.demo.dto.customer.CustomerResponseDTO;
 import com.healthPharmacy.demo.models.EmployeeModel;
 import com.healthPharmacy.demo.enums.UserRole;
 import com.healthPharmacy.demo.models.PersonModel;
@@ -14,8 +15,11 @@ public class EmployeeService {
 
     private EmployeeRepository employeeRepository;
 
-    public EmployeeService(EmployeeRepository employeeRepository) {
+    private CustomerService customerService;
+
+    public EmployeeService(EmployeeRepository employeeRepository,  CustomerService customerService) {
         this.employeeRepository = employeeRepository;
+        this.customerService = customerService;
     }
 
     @Transactional
@@ -52,5 +56,9 @@ public class EmployeeService {
             admin.setResponsibility("Administrator");
             employeeRepository.save(admin);
         }
+    }
+
+    public CustomerResponseDTO getCustomerByCpf(String cpf) {
+        return customerService.getCustomer(cpf);
     }
 }

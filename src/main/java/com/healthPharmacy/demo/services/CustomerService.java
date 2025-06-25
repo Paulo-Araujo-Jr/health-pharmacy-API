@@ -1,18 +1,16 @@
 package com.healthPharmacy.demo.services;
 
-import com.healthPharmacy.demo.dto.CustomerDTO;
+import com.healthPharmacy.demo.dto.customer.CustomerRequestDTO;
+import com.healthPharmacy.demo.dto.customer.CustomerResponseDTO;
 import com.healthPharmacy.demo.models.CustomerModel;
 import com.healthPharmacy.demo.enums.UserRole;
 import com.healthPharmacy.demo.models.PersonModel;
 import com.healthPharmacy.demo.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,19 +19,19 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void registerCustomer(CustomerDTO customerDTO) {
+    public void registerCustomer(CustomerRequestDTO customerRequestDTO) {
         PersonModel personModel = new PersonModel(
-                customerDTO.cpf(),
-                customerDTO.name(),
-                customerDTO.phoneNumber(),
-                customerDTO.email(),
-                customerDTO.password(),
+                customerRequestDTO.cpf(),
+                customerRequestDTO.name(),
+                customerRequestDTO.phoneNumber(),
+                customerRequestDTO.email(),
+                customerRequestDTO.password(),
                 UserRole.CUSTOMER
         );
 
         CustomerModel customerModel = new CustomerModel();
-        customerModel.setAge(customerDTO.age());
-        customerModel.setAddress(customerDTO.address());
+        customerModel.setAge(customerRequestDTO.age());
+        customerModel.setAddress(customerRequestDTO.address());
         customerModel.setPersonModel(personModel);
 
         customerRepository.save(customerModel);
@@ -48,6 +46,16 @@ public class CustomerService {
         PersonModel personModel = customerModel.getPersonModel();
         personModel.setActive(false);
         customerRepository.save(customerModel);
+    }
+
+    public CustomerResponseDTO getCustomer(String cpf) {
+        CustomerModel customerModel = customerRepository.findByPersonModelEmail(cpf).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return customerModelToResponseDTO(customerModel);
+    }
+
+    private  CustomerResponseDTO customerModelToResponseDTO(CustomerModel customerModel){
+        CustomerResponseDTO customerResponseDTO = new CustomerResponseDTO(customerModel.getPersonModel().getCpf(), customerModel.getPersonModel().getName(), customerModel.getPersonModel().getEmail(), customerModel.getPersonModel().getPhoneNumber(), customerModel.getAge(), customerModel.getAddress(), customerModel.getPersonModel().isActive());
+        return customerResponseDTO;
     }
 
 }
