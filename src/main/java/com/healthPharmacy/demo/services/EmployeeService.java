@@ -5,6 +5,7 @@ import com.healthPharmacy.demo.models.EmployeeModel;
 import com.healthPharmacy.demo.enums.UserRole;
 import com.healthPharmacy.demo.models.PersonModel;
 import com.healthPharmacy.demo.repository.EmployeeRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ public class EmployeeService {
         this.employeeRepository = employeeRepository;
     }
 
+    @Transactional
     public void registerEmployee(EmployeeDTO employeeDTO) {
 
         PersonModel personModel = new PersonModel(employeeDTO.cpf(), employeeDTO.name(), employeeDTO.phoneNumber(), employeeDTO.email(), employeeDTO.password(), UserRole.EMPLOYEE);
@@ -28,6 +30,7 @@ public class EmployeeService {
         employeeRepository.save(employeeModel);
     }
 
+    @Transactional
     public void deleteEmployee(Long id) {
         EmployeeModel employeeModel = employeeRepository.findByPersonModelId(id).orElseThrow(() -> new UsernameNotFoundException("Employee not found"));
         if (!employeeModel.getPersonModel().isActive()) throw new UsernameNotFoundException("Employee not found");
@@ -35,5 +38,19 @@ public class EmployeeService {
         PersonModel personModel = employeeModel.getPersonModel();
         personModel.setActive(false);
         employeeRepository.save(employeeModel);
+    }
+
+    public void saveAdmin(){
+
+        String emailAdmin = "admin@admin.com";
+
+        if (employeeRepository.findByPersonModelEmail(emailAdmin).isEmpty()) {
+            PersonModel person = new PersonModel("", "Administrator", "", emailAdmin, "admin123", UserRole.ADMIN);
+
+            EmployeeModel admin = new EmployeeModel();
+            admin.setPersonModel(person);
+            admin.setResponsibility("Administrator");
+            employeeRepository.save(admin);
+        }
     }
 }
