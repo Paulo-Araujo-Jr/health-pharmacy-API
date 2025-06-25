@@ -1,6 +1,6 @@
-package com.healthPharmacy.demo.dto;
+package com.healthPharmacy.demo.dto.employee;
 
-public record EmployeeDTO(
+public record EmployeeRequestDTO(
         String cpf,
         String name,
         String phoneNumber,

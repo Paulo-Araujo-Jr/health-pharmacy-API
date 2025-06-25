@@ -1,6 +1,7 @@
 package com.healthPharmacy.demo.controllers;
 
 import com.healthPharmacy.demo.dto.customer.CustomerRequestDTO;
+import com.healthPharmacy.demo.dto.customer.CustomerResponseDTO;
 import com.healthPharmacy.demo.services.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,5 +26,11 @@ public class CustomerController {
     public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
         customerService.deleteCustomer(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/customers/{cpf}")
+    public ResponseEntity<CustomerResponseDTO> findCustomerByCpf(@PathVariable String cpf){
+        CustomerResponseDTO customerResponseDTO = customerService.getCustomerByCpf(cpf);
+        return new ResponseEntity<>(customerResponseDTO, HttpStatus.OK);
     }
 }

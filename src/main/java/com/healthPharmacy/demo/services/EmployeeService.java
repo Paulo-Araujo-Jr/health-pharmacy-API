@@ -1,7 +1,8 @@
 package com.healthPharmacy.demo.services;
 
-import com.healthPharmacy.demo.dto.EmployeeDTO;
+import com.healthPharmacy.demo.dto.employee.EmployeeRequestDTO;
 import com.healthPharmacy.demo.dto.customer.CustomerResponseDTO;
+import com.healthPharmacy.demo.dto.employee.EmployeeResponseDTO;
 import com.healthPharmacy.demo.models.EmployeeModel;
 import com.healthPharmacy.demo.enums.UserRole;
 import com.healthPharmacy.demo.models.PersonModel;
@@ -23,20 +24,20 @@ public class EmployeeService {
     }
 
     @Transactional
-    public void registerEmployee(EmployeeDTO employeeDTO) {
+    public void registerEmployee(EmployeeRequestDTO employeeRequestDTO) {
 
-        PersonModel personModel = new PersonModel(employeeDTO.cpf(), employeeDTO.name(), employeeDTO.phoneNumber(), employeeDTO.email(), employeeDTO.password(), UserRole.EMPLOYEE);
+        PersonModel personModel = new PersonModel(employeeRequestDTO.cpf(), employeeRequestDTO.name(), employeeRequestDTO.phoneNumber(), employeeRequestDTO.email(), employeeRequestDTO.password(), UserRole.EMPLOYEE);
 
         EmployeeModel employeeModel = new EmployeeModel();
-        employeeModel.setResponsibility(employeeDTO.responsibility());
+        employeeModel.setResponsibility(employeeRequestDTO.responsibility());
         employeeModel.setPersonModel(personModel);
 
         employeeRepository.save(employeeModel);
     }
 
     @Transactional
-    public void deleteEmployee(Long id) {
-        EmployeeModel employeeModel = employeeRepository.findByPersonModelId(id).orElseThrow(() -> new UsernameNotFoundException("Employee not found"));
+    public void deleteEmployee(String cpf) {
+        EmployeeModel employeeModel = employeeRepository.findByPersonModelCpf(cpf).orElseThrow(() -> new UsernameNotFoundException("Employee not found"));
         if (!employeeModel.getPersonModel().isActive()) throw new UsernameNotFoundException("Employee not found");
 
         PersonModel personModel = employeeModel.getPersonModel();
@@ -58,7 +59,12 @@ public class EmployeeService {
         }
     }
 
-    public CustomerResponseDTO getCustomerByCpf(String cpf) {
-        return customerService.getCustomer(cpf);
+    public EmployeeResponseDTO getEmployeeByCpf(String cpf) {
+        EmployeeModel employeeModel = employeeRepository.findByPersonModelCpf(cpf).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return employeeModelToResponseDTO(employeeModel);
+    }
+
+    private EmployeeResponseDTO employeeModelToResponseDTO(EmployeeModel employeeModel){
+        return new EmployeeResponseDTO(employeeModel.getPersonModel().getCpf(), employeeModel.getPersonModel().getName(), employeeModel.getPersonModel().getPhoneNumber(), employeeModel.getPersonModel().getEmail(), employeeModel.getResponsibility(), employeeModel.getPersonModel().isActive());
     }
 }

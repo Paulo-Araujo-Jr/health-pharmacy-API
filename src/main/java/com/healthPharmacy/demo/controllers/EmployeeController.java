@@ -1,7 +1,7 @@
 package com.healthPharmacy.demo.controllers;
 
-import com.healthPharmacy.demo.dto.EmployeeDTO;
-import com.healthPharmacy.demo.dto.customer.CustomerResponseDTO;
+import com.healthPharmacy.demo.dto.employee.EmployeeRequestDTO;
+import com.healthPharmacy.demo.dto.employee.EmployeeResponseDTO;
 import com.healthPharmacy.demo.services.EmployeeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,20 +18,20 @@ public class EmployeeController {
     }
 
     @PostMapping("/registration")
-    public ResponseEntity<Void> registerEmployee(@RequestBody EmployeeDTO employeeDTO){
-        employeeService.registerEmployee(employeeDTO);
+    public ResponseEntity<Void> registerEmployee(@RequestBody EmployeeRequestDTO employeeRequestDTO){
+        employeeService.registerEmployee(employeeRequestDTO);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/customers/{id}")
-    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
-        employeeService.deleteEmployee(id);
+    @DeleteMapping("/{cpf}")
+    public ResponseEntity<Void> deleteEmployee(@PathVariable String cpf) {
+        employeeService.deleteEmployee(cpf);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping("/{cpf}")
-    public ResponseEntity<CustomerResponseDTO> findAllByCpf(@PathVariable String cpf){
-        CustomerResponseDTO customerResponseDTO = employeeService.getCustomerByCpf(cpf);
-        return new ResponseEntity<>(customerResponseDTO, HttpStatus.OK);
+    public ResponseEntity<EmployeeResponseDTO> findEmployeeByCpf(@PathVariable String cpf){
+        EmployeeResponseDTO employeeResponseDTO = employeeService.getEmployeeByCpf(cpf);
+        return new ResponseEntity<>(employeeResponseDTO, HttpStatus.OK);
     }
 }
