@@ -11,6 +11,7 @@ public record ProductDTO (
     Integer stockQuantity,
     String description,
     String category,
-    String brand
+    String brand,
+    String barcode
 )
 {}

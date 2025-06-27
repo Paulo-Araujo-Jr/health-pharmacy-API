@@ -1,9 +1,8 @@
 package com.healthPharmacy.demo.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
-public record SupplementDTO(
+public record SupplementRequestDTO(
         String name,
         BigDecimal price,
         Integer stockQuantity,
@@ -11,5 +10,7 @@ public record SupplementDTO(
         String category,
         String brand,
         String nutritionalValue,
-        String recommendedDosage) {
+        String recommendedDosage,
+        String barcode
+) {
 }

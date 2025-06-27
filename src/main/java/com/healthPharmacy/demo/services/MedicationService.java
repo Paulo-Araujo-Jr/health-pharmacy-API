@@ -1,6 +1,6 @@
 package com.healthPharmacy.demo.services;
 
-import com.healthPharmacy.demo.dto.MedicationDTO;
+import com.healthPharmacy.demo.dto.MedicationRequestDTO;
 import com.healthPharmacy.demo.models.MedicationModel;
 import com.healthPharmacy.demo.repository.MedicationRepository;
 import org.springframework.stereotype.Service;
@@ -12,16 +12,26 @@ public class MedicationService {
         this.medicationRepository = medicationRepository;
     }
 
-    public void registerMedication(MedicationDTO medicationDTO) {
+    public void registerMedication(MedicationRequestDTO medicationRequestDTO) {
         MedicationModel medicationModel = new MedicationModel();
-        medicationModel.setName(medicationDTO.name());
-        medicationModel.setPrice(medicationDTO.price());
-        medicationModel.setStockQuantity(medicationDTO.stockQuantity());
-        medicationModel.setDescription(medicationDTO.description());
-        medicationModel.setCategory(medicationDTO.category());
-        medicationModel.setBrand(medicationDTO.brand());
-        medicationModel.setPrescriptionRequired(medicationDTO.prescriptionRequired());
-        medicationModel.setDosage(medicationDTO.dosage());
+        medicationModel.setName(medicationRequestDTO.name());
+        medicationModel.setPrice(medicationRequestDTO.price());
+        medicationModel.setStockQuantity(medicationRequestDTO.stockQuantity());
+        medicationModel.setDescription(medicationRequestDTO.description());
+        medicationModel.setCategory(medicationRequestDTO.category());
+        medicationModel.setBrand(medicationRequestDTO.brand());
+        medicationModel.setPrescriptionRequired(medicationRequestDTO.prescriptionRequired());
+        medicationModel.setDosage(medicationRequestDTO.dosage());
+        medicationModel.setUncategorized(false);
         medicationRepository.save(medicationModel);
+    }
+
+    public void updateMedicationAttribute(MedicationModel product, String attributeName, String attributeValue) {
+        switch (attributeName) {
+            case "prescriptionRequired":
+                product.setPrescriptionRequired(Boolean.parseBoolean(attributeValue));
+            case "dosage":
+                product.setDosage(attributeValue);
+        }
     }
 }

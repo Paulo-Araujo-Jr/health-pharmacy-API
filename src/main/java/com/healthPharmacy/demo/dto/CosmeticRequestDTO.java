@@ -2,7 +2,7 @@ package com.healthPharmacy.demo.dto;
 
 import java.math.BigDecimal;
 
-public record CosmeticDTO(
+public record CosmeticRequestDTO(
         String name,
         BigDecimal price,
         Integer stockQuantity,
@@ -11,5 +11,7 @@ public record CosmeticDTO(
         String brand,
         String skinType,
         String color,
-        String fragrance) {
+        String fragrance,
+        String barcode
+) {
 }

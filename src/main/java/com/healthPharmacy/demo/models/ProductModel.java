@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Data
-public abstract class ProductModel {
+public class ProductModel {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -31,4 +31,8 @@ public abstract class ProductModel {
     @Column(length = 50)
     private String brand;
 
+    @Column(length = 50, unique = true)
+    private String barcode;
+
+    private boolean uncategorized = true;
 }

@@ -1,9 +1,8 @@
 package com.healthPharmacy.demo.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
-public record HygieneProductDTO (
+public record HygieneProductRequestDTO(
         String name,
         BigDecimal price,
         Integer stockQuantity,
@@ -11,6 +10,7 @@ public record HygieneProductDTO (
         String category,
         String brand,
         String usage,
-        String fragrance
+        String fragrance,
+        String barcode
 ){
 }

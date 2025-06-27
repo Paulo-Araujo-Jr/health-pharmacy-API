@@ -1,9 +1,8 @@
 package com.healthPharmacy.demo.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
-public record MedicationDTO (
+public record MedicationRequestDTO(
     String name,
     BigDecimal price,
     Integer stockQuantity,
@@ -11,5 +10,6 @@ public record MedicationDTO (
     String category,
     String brand,
     Boolean prescriptionRequired,
-    String dosage
+    String dosage,
+    String barcode
 ){}

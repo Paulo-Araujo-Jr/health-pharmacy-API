@@ -1,6 +1,6 @@
 package com.healthPharmacy.demo.services;
 
-import com.healthPharmacy.demo.dto.SupplementDTO;
+import com.healthPharmacy.demo.dto.SupplementRequestDTO;
 import com.healthPharmacy.demo.models.SupplementModel;
 import com.healthPharmacy.demo.repository.SupplementRepository;
 import org.springframework.stereotype.Service;
@@ -11,16 +11,32 @@ public class SupplementService {
     public SupplementService(SupplementRepository supplementRepository) {
         this.supplementRepository = supplementRepository;
     }
-    public void registerSupplement(SupplementDTO supplementDTO) {
+    public void registerSupplement(SupplementRequestDTO supplementRequestDTO) {
         SupplementModel supplementModel = new SupplementModel();
-        supplementModel.setName(supplementDTO.name());
-        supplementModel.setPrice(supplementDTO.price());
-        supplementModel.setStockQuantity(supplementDTO.stockQuantity());
-        supplementModel.setDescription(supplementDTO.description());
-        supplementModel.setCategory(supplementDTO.category());
-        supplementModel.setBrand(supplementDTO.brand());
-        supplementModel.setNutritionalValue(supplementDTO.nutritionalValue());
-        supplementModel.setRecommendedDosage(supplementDTO.recommendedDosage());
+        supplementModel.setName(supplementRequestDTO.name());
+        supplementModel.setPrice(supplementRequestDTO.price());
+        supplementModel.setStockQuantity(supplementRequestDTO.stockQuantity());
+        supplementModel.setDescription(supplementRequestDTO.description());
+        supplementModel.setCategory(supplementRequestDTO.category());
+        supplementModel.setBrand(supplementRequestDTO.brand());
+        supplementModel.setNutritionalValue(supplementRequestDTO.nutritionalValue());
+        supplementModel.setRecommendedDosage(supplementRequestDTO.recommendedDosage());
+        supplementModel.setUncategorized(false);
+        supplementModel.setBarcode(supplementRequestDTO.barcode());
         supplementRepository.save(supplementModel);
+    }
+
+    public void updateSupplementAttribute(SupplementModel product, String attributeName, String attributeValue) {
+        switch (attributeName) {
+            case "nutritionalValue":
+                product.setNutritionalValue(attributeValue);
+                break;
+            case "recommendedDosage":
+                product.setRecommendedDosage(attributeValue);
+                break;
+            default:
+                System.out.println("Invalid attribute name");
+                break;
+        }
     }
 }

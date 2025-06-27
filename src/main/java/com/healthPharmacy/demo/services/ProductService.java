@@ -1,16 +1,20 @@
 package com.healthPharmacy.demo.services;
 
+import com.healthPharmacy.demo.dto.ProductAttributeUpdateRequestDTO;
 import com.healthPharmacy.demo.dto.ProductDTO;
 import com.healthPharmacy.demo.enums.ProductSort;
+import com.healthPharmacy.demo.exception.DuplicateBarcodeException;
+import com.healthPharmacy.demo.exception.ProductNotFoundException;
 import com.healthPharmacy.demo.models.*;
 import com.healthPharmacy.demo.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -19,69 +23,130 @@ public class ProductService {
     private final MedicationRepository medicationRepository;
     private final HygieneProductRepository hygieneProductRepository;
     private final CosmeticRepository cosmeticRepository;
+    private final ProductRepository productRepository;
 
-    @Autowired
+    private final CosmeticService cosmeticService;
+    private final HygieneProductService hygieneProductService;
+    private final MedicationService medicationService;
+    private final SupplementService supplementService;
+
     public ProductService(SupplementRepository supplementRepository,
                           MedicationRepository medicationRepository,
                           HygieneProductRepository hygieneProductRepository,
-                          CosmeticRepository cosmeticRepository) {
+                          CosmeticRepository cosmeticRepository,
+                          ProductRepository productRepository,
+                          CosmeticService cosmeticService,
+                          HygieneProductService hygieneProductService,
+                          MedicationService medicationService,
+                          SupplementService supplementService) {
         this.supplementRepository = supplementRepository;
         this.medicationRepository = medicationRepository;
         this.hygieneProductRepository = hygieneProductRepository;
         this.cosmeticRepository = cosmeticRepository;
+        this.productRepository = productRepository;
+        this.cosmeticService = cosmeticService;
+        this.hygieneProductService = hygieneProductService;
+        this.medicationService = medicationService;
+        this.supplementService = supplementService;
     }
 
     public Page<ProductDTO> getAllProducts(int page, int size, ProductSort sort) {
         if (sort == null ) sort = ProductSort.NAME_ASC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(getSortDirection(sort), "name"));
 
-        Page<SupplementModel> supplements = supplementRepository.findAll(pageable);
-        Page<MedicationModel> medications = medicationRepository.findAll(pageable);
-        Page<HygieneProductModel> hygieneProducts = hygieneProductRepository.findAll(pageable);
-        Page<CosmeticModel> cosmetics = cosmeticRepository.findAll(pageable);
+        List<ProductDTO> allProductDTOs = new ArrayList<>();
 
-        List<ProductDTO> productDTOs = new ArrayList<>();
-        productDTOs.addAll(supplements.getContent().stream()
-                .map(supplement -> new ProductDTO(supplement.getName(), supplement.getPrice(), supplement.getStockQuantity(),
-                        supplement.getDescription(), supplement.getCategory(), supplement.getBrand()))
-                .collect(Collectors.toList()));
+        cosmeticRepository.findAll().forEach(cosmetic -> allProductDTOs.add(mapToProductDTO(cosmetic)));
+        hygieneProductRepository.findAll().forEach(hygiene -> allProductDTOs.add(mapToProductDTO(hygiene)));
+        medicationRepository.findAll().forEach(medication -> allProductDTOs.add(mapToProductDTO(medication)));
+        supplementRepository.findAll().forEach(supplement -> allProductDTOs.add(mapToProductDTO(supplement)));
 
-        productDTOs.addAll(medications.getContent().stream()
-                .map(medication -> new ProductDTO(medication.getName(), medication.getPrice(), medication.getStockQuantity(),
-                        medication.getDescription(), medication.getCategory(), medication.getBrand()))
-                .collect(Collectors.toList()));
-
-        productDTOs.addAll(hygieneProducts.getContent().stream()
-                .map(hygiene -> new ProductDTO(hygiene.getName(), hygiene.getPrice(), hygiene.getStockQuantity(),
-                        hygiene.getDescription(), hygiene.getCategory(), hygiene.getBrand()))
-                .collect(Collectors.toList()));
-
-        productDTOs.addAll(cosmetics.getContent().stream()
-                .map(cosmetic -> new ProductDTO(cosmetic.getName(), cosmetic.getPrice(), cosmetic.getStockQuantity(),
-                        cosmetic.getDescription(), cosmetic.getCategory(), cosmetic.getBrand()))
-                .collect(Collectors.toList()));
-
-        int start = Math.min((int) pageable.getOffset(), productDTOs.size());
-        int end = Math.min((start + size), productDTOs.size());
-        List<ProductDTO> paginatedProductDTOs = productDTOs.subList(start, end);
-
-        return new PageImpl<>(paginatedProductDTOs, pageable, productDTOs.size());
-
-    }
-
-    private Sort.Direction getSortDirection(ProductSort sort) {
+        Comparator<ProductDTO> comparator;
         switch (sort) {
-            case NAME_ASC:
-                return Sort.Direction.ASC;
             case NAME_DESC:
-                return Sort.Direction.DESC;
+                comparator = Comparator.comparing(ProductDTO::name).reversed();
+                break;
             case PRICE_ASC:
-                return Sort.Direction.ASC;
+                comparator = Comparator.comparing(ProductDTO::price);
+                break;
             case PRICE_DESC:
-                return Sort.Direction.DESC;
+                comparator = Comparator.comparing(ProductDTO::price).reversed();
+                break;
             default:
-                return Sort.Direction.ASC;
+                comparator = Comparator.comparing(ProductDTO::name);
+                break;
         }
+        allProductDTOs.sort(comparator);
+
+        Pageable pageable = PageRequest.of(page, size);
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), allProductDTOs.size());
+
+        if (start > allProductDTOs.size()) {
+            return new PageImpl<>(new ArrayList<>(), pageable, allProductDTOs.size());
+        }
+
+        List<ProductDTO> paginatedProductDTOs = allProductDTOs.subList(start, end);
+
+        return new PageImpl<>(paginatedProductDTOs, pageable, allProductDTOs.size());
     }
 
+    public ProductDTO getProductByBarcode(String barcode) {
+        ProductModel product = productRepository.findByBarcode(barcode)
+                .orElseThrow(() -> new ProductNotFoundException("Produto não encontrado com código de barras: " + barcode));
+        return mapToProductDTO(product);
+    }
+
+    public void updateProductAttribute(String barcode, String attributeName, String attributeValue) {
+        ProductModel product = productRepository.findByBarcode(barcode)
+                .orElseThrow(() -> new ProductNotFoundException("Produto não encontrado com código de barras: " + barcode));
+
+        if (product instanceof CosmeticModel) {
+            cosmeticService.updateCosmeticAttribute((CosmeticModel) product, attributeName, attributeValue);
+        } else if (product instanceof HygieneProductModel) {
+            hygieneProductService.updateHygieneProductAttribute((HygieneProductModel) product, attributeName, attributeValue);
+        } else if (product instanceof MedicationModel) {
+            medicationService.updateMedicationAttribute((MedicationModel) product, attributeName, attributeValue);
+        } else if (product instanceof SupplementModel) {
+            supplementService.updateSupplementAttribute((SupplementModel) product, attributeName, attributeValue);
+        }
+        switch (attributeName) {
+            case "name":
+                product.setName(attributeValue);
+                break;
+            case "price":
+                product.setPrice(new BigDecimal(attributeValue));
+                break;
+            case "stockQuantity":
+                product.setStockQuantity(Integer.parseInt(attributeValue));
+                break;
+            case "description":
+                product.setDescription(attributeValue);
+                break;
+            case "category":
+                product.setCategory(attributeValue);
+                break;
+            case "brand":
+                product.setBrand(attributeValue);
+                break;
+            case "barcode":
+                product.setBarcode(attributeValue);
+                break;
+            default:
+                throw new IllegalArgumentException("Atributo genérico desconhecido ou não mutável via este endpoint: " + attributeName);
+        }
+        productRepository.save(product);
+    }
+
+    private ProductDTO mapToProductDTO(ProductModel productModel) {
+        ProductDTO dto = new ProductDTO(
+                productModel.getName(),
+                productModel.getPrice(),
+                productModel.getStockQuantity(),
+                productModel.getDescription(),
+                productModel.getCategory(),
+                productModel.getBrand(),
+                productModel.getBarcode()
+        );
+        return dto;
+    }
 }

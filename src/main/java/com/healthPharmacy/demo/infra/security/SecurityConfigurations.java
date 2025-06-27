@@ -43,6 +43,7 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "/api/v1/products/supplements").hasAuthority("ROLE_EMPLOYEE")
                         .requestMatchers(HttpMethod.POST, "/api/v1/products/cosmetics").hasAuthority("ROLE_EMPLOYEE")
                         .requestMatchers(HttpMethod.POST, "/api/v1/products/medications").hasAuthority("ROLE_EMPLOYEE")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/products/**").hasAnyAuthority("ROLE_EMPLOYEE", "ROLE_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/products").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
                         .anyRequest().authenticated())
