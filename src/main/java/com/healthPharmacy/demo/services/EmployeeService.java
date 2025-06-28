@@ -1,14 +1,13 @@
 package com.healthPharmacy.demo.services;
 
 import com.healthPharmacy.demo.dto.employee.EmployeeRequestDTO;
-import com.healthPharmacy.demo.dto.customer.CustomerResponseDTO;
 import com.healthPharmacy.demo.dto.employee.EmployeeResponseDTO;
+import com.healthPharmacy.demo.infra.exception.UserNotFoundException;
 import com.healthPharmacy.demo.models.EmployeeModel;
 import com.healthPharmacy.demo.enums.UserRole;
 import com.healthPharmacy.demo.models.PersonModel;
 import com.healthPharmacy.demo.repository.EmployeeRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -37,8 +36,8 @@ public class EmployeeService {
 
     @Transactional
     public void deleteEmployee(String cpf) {
-        EmployeeModel employeeModel = employeeRepository.findByPersonModelCpf(cpf).orElseThrow(() -> new UsernameNotFoundException("Employee not found"));
-        if (!employeeModel.getPersonModel().isActive()) throw new UsernameNotFoundException("Employee not found");
+        EmployeeModel employeeModel = employeeRepository.findByPersonModelCpf(cpf).orElseThrow(() -> new UserNotFoundException("Employee not found"));
+        if (!employeeModel.getPersonModel().isActive()) throw new UserNotFoundException("Employee not found");
 
         PersonModel personModel = employeeModel.getPersonModel();
         personModel.setActive(false);
@@ -60,7 +59,7 @@ public class EmployeeService {
     }
 
     public EmployeeResponseDTO getEmployeeByCpf(String cpf) {
-        EmployeeModel employeeModel = employeeRepository.findByPersonModelCpf(cpf).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        EmployeeModel employeeModel = employeeRepository.findByPersonModelCpf(cpf).orElseThrow(() -> new UserNotFoundException("User not found"));
         return employeeModelToResponseDTO(employeeModel);
     }
 

@@ -1,6 +1,7 @@
 package com.healthPharmacy.demo.services;
 
 import com.healthPharmacy.demo.dto.HygieneProductRequestDTO;
+import com.healthPharmacy.demo.infra.exception.NoExistentAttributeException;
 import com.healthPharmacy.demo.models.HygieneProductModel;
 import com.healthPharmacy.demo.repository.HygieneProductRepository;
 import org.springframework.stereotype.Service;
@@ -34,7 +35,11 @@ public class HygieneProductService {
                 product.setFragrance(attributeValue);
                 break;
             default:
-                System.out.println("Invalid attribute name");
+                try {
+                    throw new NoExistentAttributeException("Unknown generic attribute '" + attributeName + "'");
+                } catch (NoExistentAttributeException e) {
+                    throw new RuntimeException(e);
+                }
         }
     }
 }

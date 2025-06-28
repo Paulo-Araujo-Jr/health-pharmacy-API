@@ -2,12 +2,12 @@ package com.healthPharmacy.demo.services;
 
 import com.healthPharmacy.demo.dto.customer.CustomerRequestDTO;
 import com.healthPharmacy.demo.dto.customer.CustomerResponseDTO;
+import com.healthPharmacy.demo.infra.exception.UserNotFoundException;
 import com.healthPharmacy.demo.models.CustomerModel;
 import com.healthPharmacy.demo.enums.UserRole;
 import com.healthPharmacy.demo.models.PersonModel;
 import com.healthPharmacy.demo.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,9 +39,9 @@ public class CustomerService {
 
     @Transactional
     public void deleteCustomer(Long id) {
-        CustomerModel customerModel = customerRepository.findByPersonModelId(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        CustomerModel customerModel = customerRepository.findByPersonModelId(id).orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        if (!customerModel.getPersonModel().isActive()) throw new UsernameNotFoundException("User not found");
+        if (!customerModel.getPersonModel().isActive()) throw new UserNotFoundException("User not found");
 
         PersonModel personModel = customerModel.getPersonModel();
         personModel.setActive(false);
@@ -49,7 +49,7 @@ public class CustomerService {
     }
 
     public CustomerResponseDTO getCustomerByCpf(String cpf) {
-        CustomerModel customerModel = customerRepository.findByPersonModelEmail(cpf).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        CustomerModel customerModel = customerRepository.findByPersonModelEmail(cpf).orElseThrow(() -> new UserNotFoundException("User not found"));
         return customerModelToResponseDTO(customerModel);
     }
 

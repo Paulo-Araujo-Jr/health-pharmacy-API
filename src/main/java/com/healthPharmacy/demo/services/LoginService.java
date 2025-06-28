@@ -1,5 +1,6 @@
 package com.healthPharmacy.demo.services;
 
+import com.healthPharmacy.demo.infra.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,7 +19,7 @@ public class LoginService implements UserDetailsService {
         if (user != null) {
             return user;
         }
-        throw new UsernameNotFoundException("User not found");
+        throw new UserNotFoundException("User not found");
     }
 
 }

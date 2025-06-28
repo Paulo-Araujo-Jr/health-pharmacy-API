@@ -1,10 +1,9 @@
 package com.healthPharmacy.demo.services;
 
-import com.healthPharmacy.demo.dto.ProductAttributeUpdateRequestDTO;
 import com.healthPharmacy.demo.dto.ProductDTO;
 import com.healthPharmacy.demo.enums.ProductSort;
-import com.healthPharmacy.demo.exception.DuplicateBarcodeException;
-import com.healthPharmacy.demo.exception.ProductNotFoundException;
+import com.healthPharmacy.demo.infra.exception.NoExistentAttributeException;
+import com.healthPharmacy.demo.infra.exception.ProductNotFoundException;
 import com.healthPharmacy.demo.models.*;
 import com.healthPharmacy.demo.repository.*;
 import org.springframework.data.domain.*;
@@ -14,7 +13,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -92,13 +90,13 @@ public class ProductService {
 
     public ProductDTO getProductByBarcode(String barcode) {
         ProductModel product = productRepository.findByBarcode(barcode)
-                .orElseThrow(() -> new ProductNotFoundException("Produto não encontrado com código de barras: " + barcode));
+                .orElseThrow(() -> new ProductNotFoundException("Product not found with barcode: " + barcode));
         return mapToProductDTO(product);
     }
 
     public void updateProductAttribute(String barcode, String attributeName, String attributeValue) {
         ProductModel product = productRepository.findByBarcode(barcode)
-                .orElseThrow(() -> new ProductNotFoundException("Produto não encontrado com código de barras: " + barcode));
+                .orElseThrow(() -> new ProductNotFoundException("Product not found with barcode: " + barcode));
 
         if (product instanceof CosmeticModel) {
             cosmeticService.updateCosmeticAttribute((CosmeticModel) product, attributeName, attributeValue);
@@ -132,7 +130,11 @@ public class ProductService {
                 product.setBarcode(attributeValue);
                 break;
             default:
-                throw new IllegalArgumentException("Atributo genérico desconhecido ou não mutável via este endpoint: " + attributeName);
+                try {
+                    throw new NoExistentAttributeException("Unknown generic attribute '" + attributeName + "'");
+                } catch (NoExistentAttributeException e) {
+                    throw new RuntimeException(e);
+                }
         }
         productRepository.save(product);
     }

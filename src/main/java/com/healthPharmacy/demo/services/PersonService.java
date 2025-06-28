@@ -1,5 +1,6 @@
 package com.healthPharmacy.demo.services;
 
+import com.healthPharmacy.demo.infra.exception.UserNotFoundException;
 import com.healthPharmacy.demo.models.PersonModel;
 import com.healthPharmacy.demo.repository.PersonRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class PersonService implements UserDetailsService {
     public UserDetails findPersonByEmail(String email) {
         return personRepository.findByEmail(email);
     }
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void save(PersonModel personModel) {
         String encodedPassword = new BCryptPasswordEncoder().encode(personModel.getPassword());
@@ -28,16 +30,16 @@ public class PersonService implements UserDetailsService {
         personRepository.save(personModel);
     }
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        if (findPersonByEmail(email) != null) {
-            return findPersonByEmail(email);
-        }
-        throw new UsernameNotFoundException(email);
+    public UserDetails loadUserByUsername(String email)  {
+            if (findPersonByEmail(email) != null) {
+                return findPersonByEmail(email);
+            }
+        throw new UserNotFoundException(email);
     }
     public void delete(PersonModel personModel) {
         if (personRepository.findById(personModel.getId()).isPresent()) {
             personRepository.delete(personModel);
         }
-        throw new UsernameNotFoundException("User not found");
+        throw new UserNotFoundException("User not found");
     }
 }

@@ -11,7 +11,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.util.Collection;
 import java.util.List;
 
-
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "persons")
@@ -47,7 +46,7 @@ public class PersonModel implements UserDetails {
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.email = email;
-        this.password = new BCryptPasswordEncoder().encode(password);;
+        this.password = new BCryptPasswordEncoder().encode(password);
         this.role = userRole;
         this.active = true;
     }
@@ -56,13 +55,23 @@ public class PersonModel implements UserDetails {
     }
 
     @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (this.getRole() == UserRole.ADMIN) {
+        if (this.role == UserRole.ADMIN) {
             return List.of(
                     new SimpleGrantedAuthority("ROLE_ADMIN"),
                     new SimpleGrantedAuthority("ROLE_EMPLOYEE")
             );
-        } else if (this.getRole() == UserRole.CUSTOMER) {
+        } else if (this.role == UserRole.CUSTOMER) {
             return List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
         } else {
             return List.of(new SimpleGrantedAuthority("ROLE_EMPLOYEE"));
@@ -70,27 +79,22 @@ public class PersonModel implements UserDetails {
     }
 
     @Override
-    public String getUsername() {
-        return email;
-    }
-
-    @Override
     public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return this.active;
     }
 }

@@ -1,6 +1,7 @@
 package com.healthPharmacy.demo.services;
 
 import com.healthPharmacy.demo.dto.SupplementRequestDTO;
+import com.healthPharmacy.demo.infra.exception.NoExistentAttributeException;
 import com.healthPharmacy.demo.models.SupplementModel;
 import com.healthPharmacy.demo.repository.SupplementRepository;
 import org.springframework.stereotype.Service;
@@ -35,8 +36,11 @@ public class SupplementService {
                 product.setRecommendedDosage(attributeValue);
                 break;
             default:
-                System.out.println("Invalid attribute name");
-                break;
+                try {
+                    throw new NoExistentAttributeException("Unknown generic attribute '" + attributeName + "'");
+                } catch (NoExistentAttributeException e) {
+                    throw new RuntimeException(e);
+                }
         }
     }
 }
