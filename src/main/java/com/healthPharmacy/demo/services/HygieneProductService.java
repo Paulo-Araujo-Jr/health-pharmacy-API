@@ -22,7 +22,6 @@ public class HygieneProductService {
         hygieneProductModel.setDescription(hygieneProductRequestDTO.description());
         hygieneProductModel.setCategory(hygieneProductRequestDTO.category());
         hygieneProductModel.setBrand(hygieneProductRequestDTO.brand());
-        hygieneProductModel.setUncategorized(false);
         hygieneProductRepository.save(hygieneProductModel);
     }
 

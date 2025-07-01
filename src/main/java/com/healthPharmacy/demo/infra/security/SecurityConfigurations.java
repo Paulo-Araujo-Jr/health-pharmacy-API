@@ -27,29 +27,30 @@ public class SecurityConfigurations {
 
     private final LoginService loginService;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/customers/**").hasAuthority("ROLE_CUSTOMER")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/customers/registration").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/api/v1/customers/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/employee/registration").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/employee/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.GET,"/api/v1/employee/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/products/hygieneProducts").hasAuthority("ROLE_EMPLOYEE")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/products/supplements").hasAuthority("ROLE_EMPLOYEE")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/products/cosmetics").hasAuthority("ROLE_EMPLOYEE")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/products/medications").hasAuthority("ROLE_EMPLOYEE")
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/products/**").hasAnyAuthority("ROLE_EMPLOYEE", "ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/products").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
-                        .anyRequest().authenticated())
-                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
-    }
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+            return http.csrf(csrf -> csrf.disable())
+                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                    .authorizeHttpRequests(authorize -> authorize
+                            .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
+                            .requestMatchers(HttpMethod.DELETE, "/api/v1/customers/**").hasAuthority("ROLE_CUSTOMER")
+                            .requestMatchers(HttpMethod.POST, "/api/v1/customers/registration").permitAll()
+                            .requestMatchers(HttpMethod.GET,"/api/v1/customers/**").hasAuthority("ROLE_ADMIN")
+                            .requestMatchers(HttpMethod.POST, "/api/v1/employee/registration").hasAuthority("ROLE_ADMIN")
+                            .requestMatchers(HttpMethod.DELETE, "/api/v1/employee/**").hasAuthority("ROLE_ADMIN")
+                            .requestMatchers(HttpMethod.GET,"/api/v1/employee/**").hasAuthority("ROLE_ADMIN")
+                            .requestMatchers(HttpMethod.POST, "/api/v1/products/hygieneProducts").hasAuthority("ROLE_EMPLOYEE")
+                            .requestMatchers(HttpMethod.POST, "/api/v1/products/supplements").hasAuthority("ROLE_EMPLOYEE")
+                            .requestMatchers(HttpMethod.POST, "/api/v1/products/cosmetics").hasAuthority("ROLE_EMPLOYEE")
+                            .requestMatchers(HttpMethod.POST, "/api/v1/products/medications").hasAuthority("ROLE_EMPLOYEE")
+                            .requestMatchers(HttpMethod.PATCH, "/api/v1/products/**").hasAnyAuthority("ROLE_EMPLOYEE", "ROLE_ADMIN")
+                            .requestMatchers(HttpMethod.POST, "/api/v1/orders/buy-now").hasAnyAuthority("ROLE_CUSTOMER")
+                            .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
+                            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
+                            .anyRequest().authenticated())
+                    .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                    .build();
+        }
 
 
     @Bean
@@ -75,4 +76,3 @@ public class SecurityConfigurations {
         return new BCryptPasswordEncoder();
     }
 }
-

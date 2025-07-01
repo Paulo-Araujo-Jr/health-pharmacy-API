@@ -3,7 +3,6 @@ package com.healthPharmacy.demo.models;
 import jakarta.persistence.*;
 import lombok.Data;
 
-
 @Entity
 @Table(name = "customers")
 @Data

@@ -4,6 +4,7 @@ import com.healthPharmacy.demo.dto.ProductDTO;
 import com.healthPharmacy.demo.enums.ProductSort;
 import com.healthPharmacy.demo.infra.exception.NoExistentAttributeException;
 import com.healthPharmacy.demo.infra.exception.ProductNotFoundException;
+import com.healthPharmacy.demo.infra.exception.ProductOutOfStockException;
 import com.healthPharmacy.demo.models.*;
 import com.healthPharmacy.demo.repository.*;
 import org.springframework.data.domain.*;
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -92,7 +94,13 @@ public class ProductService {
         ProductModel product = productRepository.findByBarcode(barcode)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with barcode: " + barcode));
         return mapToProductDTO(product);
+
     }
+    public ProductModel findProductModelByBarcode(String barcode) {
+        return productRepository.findByBarcode(barcode)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found with barcode: " + barcode));
+    }
+
 
     public void updateProductAttribute(String barcode, String attributeName, String attributeValue) {
         ProductModel product = productRepository.findByBarcode(barcode)
@@ -139,6 +147,20 @@ public class ProductService {
         productRepository.save(product);
     }
 
+    public void haveInStock(String barcode, int quantity) {
+        Optional<ProductModel> productModel = productRepository.findByBarcode(barcode);
+        if (productModel.get().getStockQuantity() <= 0)
+            throw new ProductOutOfStockException("Product out of stock");
+        else if (quantity > productModel.get().getStockQuantity())
+            throw new ProductOutOfStockException("Quantity in stock exceeded. Quantity ordered: " + quantity + "Quantity in stock: " +  productModel.get().getStockQuantity());
+    }
+
+    public void productPurchased(String barcode, int quantity) {
+        Optional<ProductModel> productModel = productRepository.findByBarcode(barcode);
+        productModel.get().setStockQuantity(productModel.get().getStockQuantity() - quantity);
+        productRepository.save(productModel.get());
+    }
+
     private ProductDTO mapToProductDTO(ProductModel productModel) {
         ProductDTO dto = new ProductDTO(
                 productModel.getName(),
@@ -151,4 +173,5 @@ public class ProductService {
         );
         return dto;
     }
+
 }

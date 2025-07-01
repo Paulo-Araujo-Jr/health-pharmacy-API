@@ -34,5 +34,17 @@ public class ProductModel {
     @Column(length = 50, unique = true)
     private String barcode;
 
-    private boolean uncategorized = true;
+    public ProductModel(String name, BigDecimal price, Integer stockQuantity, String description, String category, String brand, String barcode) {
+        this.name = name;
+        this.price = price;
+        this.stockQuantity = stockQuantity;
+        this.description = description;
+        this.category = category;
+        this.brand = brand;
+        this.barcode = barcode;
+    }
+
+    public ProductModel() {
+
+    }
 }

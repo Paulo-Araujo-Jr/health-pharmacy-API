@@ -24,7 +24,6 @@ public class CosmeticService {
         cosmeticModel.setDescription(cosmeticRequestDTO.description());
         cosmeticModel.setCategory(cosmeticRequestDTO.category());
         cosmeticModel.setBrand(cosmeticRequestDTO.brand());
-        cosmeticModel.setUncategorized(false);
         cosmeticRepository.save(cosmeticModel);
     }
 

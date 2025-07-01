@@ -10,6 +10,14 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(ProductOutOfStockException.class)
+    public ResponseEntity<Map<String, String>> productOutOfStockException(ProductOutOfStockException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Stock of Missing Products");
+        error.put("message", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleUserNotFound(UserNotFoundException ex) {
         Map<String, String> error = new HashMap<>();

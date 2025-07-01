@@ -3,10 +3,12 @@ package com.healthPharmacy.demo.models;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "cart")
 @Data
-public class ShoppingCartModel {
+public class CartItemModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -16,10 +18,10 @@ public class ShoppingCartModel {
     private ProductModel product;
 
     @ManyToOne
-    @JoinColumn(name = "good_id")
-    private OrderItemModel request;
+    @JoinColumn(name = "order_id")
+    private OrderModel order;
 
     private int quantity;
-    private double price;
+    private BigDecimal price;
 
 }

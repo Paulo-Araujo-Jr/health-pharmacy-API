@@ -23,7 +23,6 @@ public class MedicationService {
         medicationModel.setBrand(medicationRequestDTO.brand());
         medicationModel.setPrescriptionRequired(medicationRequestDTO.prescriptionRequired());
         medicationModel.setDosage(medicationRequestDTO.dosage());
-        medicationModel.setUncategorized(false);
         medicationRepository.save(medicationModel);
     }
 

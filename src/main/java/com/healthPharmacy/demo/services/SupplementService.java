@@ -22,7 +22,6 @@ public class SupplementService {
         supplementModel.setBrand(supplementRequestDTO.brand());
         supplementModel.setNutritionalValue(supplementRequestDTO.nutritionalValue());
         supplementModel.setRecommendedDosage(supplementRequestDTO.recommendedDosage());
-        supplementModel.setUncategorized(false);
         supplementModel.setBarcode(supplementRequestDTO.barcode());
         supplementRepository.save(supplementModel);
     }
