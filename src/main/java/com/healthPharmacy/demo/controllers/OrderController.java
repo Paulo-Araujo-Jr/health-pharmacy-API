@@ -1,6 +1,6 @@
 package com.healthPharmacy.demo.controllers;
 
-import com.healthPharmacy.demo.dto.BuyNowRequestDTO;
+import com.healthPharmacy.demo.dto.ProductOrderRequestDTO;
 import com.healthPharmacy.demo.services.OrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +20,15 @@ public class OrderController {
     }
 
     @PostMapping("/buy-now")
-    public ResponseEntity<Void> buyNow(@RequestBody BuyNowRequestDTO request) {
+    public ResponseEntity<Void> buyNow(@RequestBody ProductOrderRequestDTO request) {
         orderService.buyNow(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+
+    @PostMapping("/cart/add")
+    public ResponseEntity<Void> addToCart(@RequestBody ProductOrderRequestDTO request) {
+        orderService.addToCart(request);
+        return ResponseEntity.ok().build();
+    }
+
 }

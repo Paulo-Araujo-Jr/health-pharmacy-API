@@ -1,7 +1,6 @@
 package com.healthPharmacy.demo.services;
 
-import com.healthPharmacy.demo.dto.BuyNowRequestDTO;
-import com.healthPharmacy.demo.dto.ProductDTO;
+import com.healthPharmacy.demo.dto.ProductOrderRequestDTO;
 import com.healthPharmacy.demo.enums.OrderStatus;
 import com.healthPharmacy.demo.models.*;
 import com.healthPharmacy.demo.repository.CustomerRepository;
@@ -11,6 +10,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,7 +28,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void buyNow(BuyNowRequestDTO buyNowRequestDTO){
+    public void buyNow(ProductOrderRequestDTO productOrderRequestDTO){
         OrderModel order = new OrderModel();
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -43,25 +43,55 @@ public class OrderService {
         order.setOrderDate(LocalDateTime.now());
         order.setStatus(OrderStatus.COMPLETED);
 
-        ProductModel productModel = productService.findProductModelByBarcode(buyNowRequestDTO.productBarcode());
-        productService.haveInStock(buyNowRequestDTO.productBarcode(),  buyNowRequestDTO.quantity());
-        CartItemModel item = getCartItemModel(buyNowRequestDTO, productModel, order);
+        ProductModel productModel = productService.findProductModelByBarcode(productOrderRequestDTO.productBarcode());
+        productService.haveInStock(productOrderRequestDTO.productBarcode(),  productOrderRequestDTO.quantity());
+        CartItemModel item = getCartItemModel(productOrderRequestDTO, productModel, order);
 
 
         order.setItems(List.of(item));
         order.setTotalValue(item.getPrice());
 
-        productService.productPurchased(buyNowRequestDTO.productBarcode(), item.getQuantity());
+        productService.productPurchased(productOrderRequestDTO.productBarcode(), item.getQuantity());
 
         orderRepository.save(order);
     }
-    private static CartItemModel getCartItemModel(BuyNowRequestDTO buyNowRequestDTO, ProductModel productModel, OrderModel order) {
+
+    @Transactional
+    public void addToCart(ProductOrderRequestDTO request) {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (!(principal instanceof PersonModel person)) {
+            throw new AccessDeniedException("Only authenticated users can perform this operation");
+        }
+
+        CustomerModel customer = customerRepository.findByPersonModel(person)
+                .orElseThrow(() -> new AccessDeniedException("Customer profile not found for this user."));
+
+        OrderModel order = orderRepository.findByCustomerAndStatus(customer, OrderStatus.OPEN)
+                .orElseGet(() -> {
+                    OrderModel newOrder = new OrderModel();
+                    newOrder.setCustomer(customer);
+                    newOrder.setOrderDate(LocalDateTime.now());
+                    newOrder.setStatus(OrderStatus.OPEN);
+                    return orderRepository.save(newOrder);
+                });
+
+        ProductModel productModel = productService.findProductModelByBarcode(request.productBarcode());
+
+        CartItemModel item = getCartItemModel(request, productModel, order);
+        order.getItems().add(item);
+        order.setTotalValue(order.getItems().stream()
+                .map(CartItemModel::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add));
+    }
+
+    private static CartItemModel getCartItemModel(ProductOrderRequestDTO productOrderRequestDTO, ProductModel productModel, OrderModel order) {
         CartItemModel item = new CartItemModel();
         item.setOrder(order);
         item.setProduct(productModel);
 
-        if (buyNowRequestDTO.quantity() != null)
-            item.setQuantity(buyNowRequestDTO.quantity());
+        if (productOrderRequestDTO.quantity() != null)
+            item.setQuantity(productOrderRequestDTO.quantity());
         else
             item.setQuantity(1);
 
