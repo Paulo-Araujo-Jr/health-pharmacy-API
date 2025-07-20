@@ -1,11 +1,15 @@
 package com.healthPharmacy.demo.services;
 
+import com.healthPharmacy.demo.dto.CartItemDTO;
+import com.healthPharmacy.demo.dto.CartResponseDTO;
 import com.healthPharmacy.demo.dto.ProductOrderRequestDTO;
 import com.healthPharmacy.demo.enums.OrderStatus;
+import com.healthPharmacy.demo.enums.ProductSort;
 import com.healthPharmacy.demo.models.*;
 import com.healthPharmacy.demo.repository.CustomerRepository;
 import com.healthPharmacy.demo.repository.OrderRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -13,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderService {
@@ -78,19 +83,32 @@ public class OrderService {
 
         ProductModel productModel = productService.findProductModelByBarcode(request.productBarcode());
 
-        CartItemModel item = getCartItemModel(request, productModel, order);
-        order.getItems().add(item);
+        CartItemModel existingItem = order.getItems().stream()
+                .filter(item -> item.getProduct().equals(productModel))
+                .findFirst()
+                .orElse(null);
+
+        if (existingItem != null) {
+            int newQuantity = existingItem.getQuantity() + request.quantity();
+            existingItem.setQuantity(newQuantity);
+            existingItem.setPrice(productModel.getPrice().multiply(BigDecimal.valueOf(newQuantity)));
+        } else {
+            CartItemModel newItem = getCartItemModel(request, productModel, order);
+            order.getItems().add(newItem);
+        }
+
         order.setTotalValue(order.getItems().stream()
                 .map(CartItemModel::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add));
     }
+
 
     private static CartItemModel getCartItemModel(ProductOrderRequestDTO productOrderRequestDTO, ProductModel productModel, OrderModel order) {
         CartItemModel item = new CartItemModel();
         item.setOrder(order);
         item.setProduct(productModel);
 
-        if (productOrderRequestDTO.quantity() != null)
+        if (productOrderRequestDTO.quantity() != null || productOrderRequestDTO.quantity() != 0)
             item.setQuantity(productOrderRequestDTO.quantity());
         else
             item.setQuantity(1);
@@ -98,4 +116,35 @@ public class OrderService {
         item.setPrice(productModel.getPrice());
         return item;
     }
+
+    public CartResponseDTO viewCart(int page, int size, ProductSort sort) {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof PersonModel person) {
+            CustomerModel customer = customerRepository.findByPersonModel(person)
+                    .orElseThrow(() -> new AccessDeniedException("Customer profile not found."));
+
+            Optional<OrderModel> optionalOrder = orderRepository.findByCustomerAndStatus(customer, OrderStatus.OPEN);
+
+            if (optionalOrder.isEmpty()) {
+                return new CartResponseDTO(List.of(), BigDecimal.ZERO, OrderStatus.OPEN);
+            }
+
+            OrderModel openOrder = optionalOrder.get();
+
+            List<CartItemDTO> items = openOrder.getItems().stream()
+                    .map(CartItemDTO::fromEntity)
+                    .sorted(sort.getComparator())
+                    .toList();
+
+            int start = Math.min(page * size, items.size());
+            int end = Math.min(start + size, items.size());
+            List<CartItemDTO> pagedItems = items.subList(start, end);
+
+            return new CartResponseDTO(pagedItems, openOrder.getTotalValue(), openOrder.getStatus());
+        }
+
+        return new CartResponseDTO(List.of(), BigDecimal.ZERO, OrderStatus.OPEN);
+    }
+
 }
