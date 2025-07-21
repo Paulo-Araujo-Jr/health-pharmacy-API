@@ -25,17 +25,19 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductService productService;
     private final CustomerRepository customerRepository;
+    private final PersonService personService;
 
-    public OrderService(OrderRepository orderRepository,  ProductService productService,  CustomerRepository customerRepository) {
+    public OrderService(OrderRepository orderRepository, ProductService productService, CustomerRepository customerRepository, PersonService personService) {
         this.orderRepository = orderRepository;
         this.productService = productService;
         this.customerRepository = customerRepository;
+        this.personService = personService;
     }
 
     @Transactional
     public void buyNow(ProductOrderRequestDTO productOrderRequestDTO){
         OrderModel order = new OrderModel();
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Object principal = personService.getAuthenticatedPerson();
 
         if (principal instanceof PersonModel person) {
             CustomerModel customer = customerRepository.findByPersonModel(person)
@@ -97,11 +99,42 @@ public class OrderService {
             order.getItems().add(newItem);
         }
 
-        order.setTotalValue(order.getItems().stream()
-                .map(CartItemModel::getPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add));
+        updateTotalValue(order);
     }
 
+    @Transactional
+    public void decreaseQuantity(ProductOrderRequestDTO request) {
+        CustomerModel customer = new CustomerModel();
+        OrderModel order = new OrderModel();
+        Object principal = personService.getAuthenticatedPerson();
+        if (principal instanceof PersonModel person) {
+            customer = customerRepository.findByPersonModel(person)
+                    .orElseThrow(() -> new AccessDeniedException("Customer profile not found for this user."));
+            order.setCustomer(customer);
+        } else {
+            throw new AccessDeniedException("Only authenticated users can perform this operation");
+        }
+
+        order = orderRepository.findByCustomerAndStatus(customer, OrderStatus.OPEN)
+                .orElseThrow(() -> new RuntimeException("No open order found"));
+
+        ProductModel product = productService.findProductModelByBarcode(request.productBarcode());
+
+        CartItemModel item = order.getItems().stream()
+                .filter(i -> i.getProduct().equals(product))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Product not found in cart"));
+
+        if (item.getQuantity() > request.quantity()) {
+            int newQty = item.getQuantity() - request.quantity();
+            item.setQuantity(newQty);
+            item.setPrice(product.getPrice().multiply(BigDecimal.valueOf(newQty)));
+        } else {
+            order.getItems().remove(item);
+        }
+
+        updateTotalValue(order);
+    }
 
     private static CartItemModel getCartItemModel(ProductOrderRequestDTO productOrderRequestDTO, ProductModel productModel, OrderModel order) {
         CartItemModel item = new CartItemModel();
@@ -132,6 +165,10 @@ public class OrderService {
 
             OrderModel openOrder = optionalOrder.get();
 
+            openOrder.getItems().removeIf(item -> item.getQuantity() <= 0);
+
+            updateTotalValue(openOrder);
+
             List<CartItemDTO> items = openOrder.getItems().stream()
                     .map(CartItemDTO::fromEntity)
                     .sorted(sort.getComparator())
@@ -146,5 +183,13 @@ public class OrderService {
 
         return new CartResponseDTO(List.of(), BigDecimal.ZERO, OrderStatus.OPEN);
     }
+
+    private void updateTotalValue(OrderModel order) {
+        BigDecimal total = order.getItems().stream()
+                .map(CartItemModel::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        order.setTotalValue(total);
+    }
+
 
 }

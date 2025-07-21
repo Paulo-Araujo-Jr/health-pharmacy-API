@@ -4,7 +4,6 @@ import com.healthPharmacy.demo.dto.CartResponseDTO;
 import com.healthPharmacy.demo.dto.ProductOrderRequestDTO;
 import com.healthPharmacy.demo.enums.ProductSort;
 import com.healthPharmacy.demo.services.OrderService;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,5 +37,12 @@ public class OrderController {
         CartResponseDTO response = orderService.viewCart(page, size, sort);
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/cart/decrease")
+    public ResponseEntity<Void> decreaseQuantity(@RequestBody ProductOrderRequestDTO request) {
+        orderService.decreaseQuantity(request);
+        return ResponseEntity.ok().build();
+    }
+
 
 }

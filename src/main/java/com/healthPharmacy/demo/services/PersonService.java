@@ -3,11 +3,10 @@ package com.healthPharmacy.demo.services;
 import com.healthPharmacy.demo.infra.exception.UserNotFoundException;
 import com.healthPharmacy.demo.models.PersonModel;
 import com.healthPharmacy.demo.repository.PersonRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -41,5 +40,8 @@ public class PersonService implements UserDetailsService {
             personRepository.delete(personModel);
         }
         throw new UserNotFoundException("User not found");
+    }
+    public Object getAuthenticatedPerson() {
+        return SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }
