@@ -1,12 +1,15 @@
 package com.healthPharmacy.demo.controllers;
 
 import com.healthPharmacy.demo.dto.CartResponseDTO;
+import com.healthPharmacy.demo.dto.OrderSummaryDTO;
 import com.healthPharmacy.demo.dto.ProductOrderRequestDTO;
 import com.healthPharmacy.demo.enums.ProductSort;
 import com.healthPharmacy.demo.services.OrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/orders")
@@ -50,5 +53,16 @@ public class OrderController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/checkout")
+    public ResponseEntity<Void> checkoutCart() {
+        orderService.checkoutCart();
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/my-orders")
+    public ResponseEntity<List<OrderSummaryDTO>> getMyOrders() {
+        List<OrderSummaryDTO> dtoList = orderService.getMyCompletedOrders();
+        return ResponseEntity.ok(dtoList);
+    }
 
 }

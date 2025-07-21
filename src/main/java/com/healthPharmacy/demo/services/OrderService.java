@@ -2,6 +2,7 @@ package com.healthPharmacy.demo.services;
 
 import com.healthPharmacy.demo.dto.CartItemDTO;
 import com.healthPharmacy.demo.dto.CartResponseDTO;
+import com.healthPharmacy.demo.dto.OrderSummaryDTO;
 import com.healthPharmacy.demo.dto.ProductOrderRequestDTO;
 import com.healthPharmacy.demo.enums.OrderStatus;
 import com.healthPharmacy.demo.enums.ProductSort;
@@ -36,8 +37,9 @@ public class OrderService {
 
     @Transactional
     public void buyNow(ProductOrderRequestDTO productOrderRequestDTO){
-        OrderModel order = new OrderModel();
+
         Object principal = personService.getAuthenticatedPerson();
+        OrderModel order = new OrderModel();
 
         if (principal instanceof PersonModel person) {
             CustomerModel customer = customerRepository.findByPersonModel(person)
@@ -53,7 +55,6 @@ public class OrderService {
         ProductModel productModel = productService.findProductModelByBarcode(productOrderRequestDTO.productBarcode());
         productService.haveInStock(productOrderRequestDTO.productBarcode(),  productOrderRequestDTO.quantity());
         CartItemModel item = getCartItemModel(productOrderRequestDTO, productModel, order);
-
 
         order.setItems(List.of(item));
         order.setTotalValue(item.getPrice());
@@ -195,6 +196,55 @@ public class OrderService {
         order.getItems().removeIf(item -> item.getProduct().equals(product));
 
         updateTotalValue(order);
+    }
+
+    @Transactional
+    public void checkoutCart() {
+        Object principal = personService.getAuthenticatedPerson();
+
+        if (!(principal instanceof PersonModel person)) {
+            throw new AccessDeniedException("Only authenticated users can perform this operation");
+        }
+
+        CustomerModel customer = customerRepository.findByPersonModel(person)
+                .orElseThrow(() -> new AccessDeniedException("Customer profile not found for this user."));
+
+        OrderModel openOrder = orderRepository.findByCustomerAndStatus(customer, OrderStatus.OPEN)
+                .orElseThrow(() -> new IllegalStateException("O carrinho está vazio."));
+
+        List<CartItemModel> cartItems = openOrder.getItems();
+        if (cartItems.isEmpty()) {
+            throw new IllegalStateException("O carrinho está vazio.");
+        }
+
+        openOrder.setStatus(OrderStatus.COMPLETED);
+        openOrder.setOrderDate(LocalDateTime.now());
+
+        BigDecimal total = BigDecimal.ZERO;
+        for (CartItemModel cartItem : cartItems) {
+            total = total.add(cartItem.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+            productService.productPurchased(cartItem.getProduct().getBarcode(), cartItem.getQuantity());
+        }
+
+        openOrder.setTotalValue(total);
+    }
+
+    @Transactional
+    public List<OrderSummaryDTO> getMyCompletedOrders() {
+        Object principal = personService.getAuthenticatedPerson();
+
+        if (!(principal instanceof PersonModel person)) {
+            throw new AccessDeniedException("Only authenticated users can perform this operation");
+        }
+
+        CustomerModel customer = customerRepository.findByPersonModel(person)
+                .orElseThrow(() -> new AccessDeniedException("Customer profile not found for this user."));
+
+        List<OrderModel> orders = orderRepository.findAllByCustomerAndStatus(customer, OrderStatus.COMPLETED);
+
+        return orders.stream()
+                .map(OrderSummaryDTO::fromEntity)
+                .toList();
     }
 
     private static CartItemModel getCartItemModel(ProductOrderRequestDTO productOrderRequestDTO, ProductModel productModel, OrderModel order) {
