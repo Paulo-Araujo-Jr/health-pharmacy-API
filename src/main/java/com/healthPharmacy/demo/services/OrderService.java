@@ -90,8 +90,10 @@ public class OrderService {
                 .findFirst()
                 .orElse(null);
 
+        int quantityToAdd = request.getSafeQuantity();
+
         if (existingItem != null) {
-            int newQuantity = existingItem.getQuantity() + request.quantity();
+            int newQuantity = existingItem.getQuantity() + quantityToAdd;
             existingItem.setQuantity(newQuantity);
             existingItem.setPrice(productModel.getPrice().multiply(BigDecimal.valueOf(newQuantity)));
         } else {
@@ -136,20 +138,7 @@ public class OrderService {
         updateTotalValue(order);
     }
 
-    private static CartItemModel getCartItemModel(ProductOrderRequestDTO productOrderRequestDTO, ProductModel productModel, OrderModel order) {
-        CartItemModel item = new CartItemModel();
-        item.setOrder(order);
-        item.setProduct(productModel);
-
-        if (productOrderRequestDTO.quantity() != null || productOrderRequestDTO.quantity() != 0)
-            item.setQuantity(productOrderRequestDTO.quantity());
-        else
-            item.setQuantity(1);
-
-        item.setPrice(productModel.getPrice());
-        return item;
-    }
-
+    @Transactional
     public CartResponseDTO viewCart(int page, int size, ProductSort sort) {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -184,12 +173,49 @@ public class OrderService {
         return new CartResponseDTO(List.of(), BigDecimal.ZERO, OrderStatus.OPEN);
     }
 
+    @Transactional
+    public void removeFromCart(String barcode) {
+        OrderModel order = new OrderModel();
+        Object principal = personService.getAuthenticatedPerson();
+        if (principal instanceof PersonModel person) {
+            CustomerModel customer = customerRepository.findByPersonModel(person)
+                    .orElseThrow(() -> new AccessDeniedException("Customer profile not found for this user."));
+            order.setCustomer(customer);
+        } else {
+            throw new AccessDeniedException("Only authenticated users can perform this operation");
+        }
+        CustomerModel customer = customerRepository.findByPersonModel(person)
+                .orElseThrow(() -> new AccessDeniedException("Customer profile not found"));
+
+        order = orderRepository.findByCustomerAndStatus(customer, OrderStatus.OPEN)
+                .orElseThrow(() -> new RuntimeException("No open order found"));
+
+        ProductModel product = productService.findProductModelByBarcode(barcode);
+
+        order.getItems().removeIf(item -> item.getProduct().equals(product));
+
+        updateTotalValue(order);
+    }
+
+    private static CartItemModel getCartItemModel(ProductOrderRequestDTO productOrderRequestDTO, ProductModel productModel, OrderModel order) {
+        CartItemModel item = new CartItemModel();
+        item.setOrder(order);
+        item.setProduct(productModel);
+
+        if (productOrderRequestDTO.quantity() != 0)
+            item.setQuantity(productOrderRequestDTO.quantity());
+        else
+            item.setQuantity(1);
+
+        item.setPrice(productModel.getPrice());
+        return item;
+    }
+
     private void updateTotalValue(OrderModel order) {
         BigDecimal total = order.getItems().stream()
                 .map(CartItemModel::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         order.setTotalValue(total);
     }
-
 
 }

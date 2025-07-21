@@ -8,4 +8,8 @@ public record ProductOrderRequestDTO(
         @JsonProperty("product_barcode")
         String productBarcode,
         Integer quantity
-) {}
+) {
+        public int getSafeQuantity() {
+                return (quantity == null || quantity <= 0) ? 1 : quantity;
+        }
+}

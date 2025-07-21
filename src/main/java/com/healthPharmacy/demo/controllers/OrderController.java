@@ -44,5 +44,11 @@ public class OrderController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/cart/remove")
+    public ResponseEntity<Void> removeFromCart(@RequestParam("product_barcode") String barcode) {
+        orderService.removeFromCart(barcode);
+        return ResponseEntity.ok().build();
+    }
+
 
 }
