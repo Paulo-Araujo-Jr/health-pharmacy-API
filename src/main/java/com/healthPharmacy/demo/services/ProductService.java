@@ -7,6 +7,8 @@ import com.healthPharmacy.demo.infra.exception.ProductNotFoundException;
 import com.healthPharmacy.demo.infra.exception.ProductOutOfStockException;
 import com.healthPharmacy.demo.models.*;
 import com.healthPharmacy.demo.repository.*;
+import jakarta.transaction.TransactionScoped;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
@@ -172,6 +174,24 @@ public class ProductService {
                 productModel.getBarcode()
         );
         return dto;
+    }
+
+    @Transactional
+    public void deleteProductByBarcode(String barcode) {
+        ProductModel product = productRepository.findByBarcode(barcode)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found with barcode: " + barcode));
+
+        if (product instanceof CosmeticModel cosmetic) {
+            cosmeticRepository.delete(cosmetic);
+        } else if (product instanceof HygieneProductModel hygieneProduct) {
+            hygieneProductRepository.delete(hygieneProduct);
+        } else if (product instanceof MedicationModel medication) {
+            medicationRepository.delete(medication);
+        } else if (product instanceof SupplementModel supplement) {
+            supplementRepository.delete(supplement);
+        } else {
+            productRepository.delete(product);
+        }
     }
 
 }

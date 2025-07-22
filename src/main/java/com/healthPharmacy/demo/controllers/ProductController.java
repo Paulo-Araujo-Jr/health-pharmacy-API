@@ -78,4 +78,11 @@ public class ProductController {
         productService.updateProductAttribute(barcode, attributeName, attributeValue);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    @DeleteMapping("/{barcode}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable String barcode) {
+        productService.deleteProductByBarcode(barcode);
+        return ResponseEntity.noContent().build();
+    }
+
 }
