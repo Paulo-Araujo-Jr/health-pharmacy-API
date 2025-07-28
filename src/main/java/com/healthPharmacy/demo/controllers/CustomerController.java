@@ -3,19 +3,19 @@ package com.healthPharmacy.demo.controllers;
 import com.healthPharmacy.demo.dto.customer.CustomerRequestDTO;
 import com.healthPharmacy.demo.dto.customer.CustomerResponseDTO;
 import com.healthPharmacy.demo.services.CustomerService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/v1/customers")
-@RequiredArgsConstructor
 public class CustomerController {
 
-    @Autowired
     private final CustomerService customerService;
+
+    public CustomerController(CustomerService customerService) {
+        this.customerService = customerService;
+    }
 
     @PostMapping("/registration")
     public ResponseEntity<Void> registerCustomer(@RequestBody CustomerRequestDTO customerRequestDTO) {

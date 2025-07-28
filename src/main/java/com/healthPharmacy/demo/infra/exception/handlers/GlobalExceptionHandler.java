@@ -1,5 +1,6 @@
-package com.healthPharmacy.demo.infra.exception;
+package com.healthPharmacy.demo.infra.exception.handlers;
 
+import com.healthPharmacy.demo.infra.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
