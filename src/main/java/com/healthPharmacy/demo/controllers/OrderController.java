@@ -3,8 +3,10 @@ package com.healthPharmacy.demo.controllers;
 import com.healthPharmacy.demo.dto.CartResponseDTO;
 import com.healthPharmacy.demo.dto.OrderSummaryDTO;
 import com.healthPharmacy.demo.dto.ProductOrderRequestDTO;
+import com.healthPharmacy.demo.dto.SaleSummaryDTO;
 import com.healthPharmacy.demo.enums.ProductSort;
 import com.healthPharmacy.demo.services.OrderService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -65,4 +67,11 @@ public class OrderController {
         return ResponseEntity.ok(dtoList);
     }
 
+    @GetMapping
+    public ResponseEntity<Page<SaleSummaryDTO>> getAllSales(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<SaleSummaryDTO> salesPage = orderService.getAllSales(page, size);
+        return ResponseEntity.ok(salesPage);
+    }
 }

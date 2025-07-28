@@ -1,9 +1,6 @@
 package com.healthPharmacy.demo.services;
 
-import com.healthPharmacy.demo.dto.CartItemDTO;
-import com.healthPharmacy.demo.dto.CartResponseDTO;
-import com.healthPharmacy.demo.dto.OrderSummaryDTO;
-import com.healthPharmacy.demo.dto.ProductOrderRequestDTO;
+import com.healthPharmacy.demo.dto.*;
 import com.healthPharmacy.demo.enums.OrderStatus;
 import com.healthPharmacy.demo.enums.ProductSort;
 import com.healthPharmacy.demo.models.*;
@@ -11,6 +8,8 @@ import com.healthPharmacy.demo.repository.CustomerRepository;
 import com.healthPharmacy.demo.repository.OrderRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -245,6 +244,14 @@ public class OrderService {
         return orders.stream()
                 .map(OrderSummaryDTO::fromEntity)
                 .toList();
+    }
+
+    @Transactional()
+    public Page<SaleSummaryDTO> getAllSales(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<OrderModel> salesPage = orderRepository.findAllByStatus(OrderStatus.COMPLETED, pageable);
+
+        return salesPage.map(SaleSummaryDTO::fromEntity);
     }
 
     private static CartItemModel getCartItemModel(ProductOrderRequestDTO productOrderRequestDTO, ProductModel productModel, OrderModel order) {
